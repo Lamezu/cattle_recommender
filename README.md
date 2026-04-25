@@ -1,5 +1,7 @@
 # 🐄 Cattle Recommender System - Proyecto AED
 
+[🇺🇸 View English Version](README_EN.md)
+
 Sistema inteligente de recomendación de ganado basado en grafos (Neo4j) y Python. Diseñado para optimizar la toma de decisiones de granjeros mediante algoritmos colaborativos y basados en contenido.
 
 ---
@@ -10,15 +12,20 @@ Sistema inteligente de recomendación de ganado basado en grafos (Neo4j) y Pytho
 *   **Containerization:** Docker
 *   **Logic:** Cypher Query Language
 
-## 📊 Modelo de Grafo
-El sistema utiliza una arquitectura de grafos para conectar granjeros con vacas basándose en su comportamiento y características.
+## 📐 Arquitectura y Flujos
+Visualización detallada de la estructura de datos y la experiencia de usuario.
 
-![Esquema del Grafo](docs/diagrams/graph_model_schema.png)
+### 1. Modelo de Grafo
+Definición de nodos y relaciones en Neo4j.
+![Esquema del Grafo](docs/diagrams/graph_model_schema.svg)
 
-### Nodos Principales
-*   **Farmer:** Identidad del usuario.
-*   **Cow:** El activo principal con atributos de raza, precio y valoración.
-*   **Breed & Environment:** Contexto para recomendaciones por contenido.
+### 2. Flujo de Usuario (Farmer Journey)
+Camino que sigue el granjero desde el Login hasta la recepción de recomendaciones.
+![Flujo de Usuario](docs/diagrams/cow_app_flow_for_farmers.svg)
+
+### 3. Lógica de Recomendación (Cerebro)
+Algoritmos aplicados para generar las listas de cada pestaña.
+![Lógica de Recomendación](docs/diagrams/recommendations_system.svg)
 
 ---
 
@@ -40,13 +47,16 @@ python3 test_db.py
 ---
 
 ## 📚 Documentación
-*Próximamente disponibles los manuales completos en el directorio `/docs`:*
+*Manuales completos disponibles en el directorio `/docs`:*
 
-| Documento | Idioma | Versión |
+| Documento | Idioma | Enlace |
 | :--- | :--- | :--- |
-| **Guía de Usuario** | 🇪🇸 Español / 🇬🇧 English | v1.0 |
-| **Guía del Desarrollador** | 🇪🇸 Español / 🇬🇧 English | v1.0 |
-| **Justificación de Base de Datos** | 🇪🇸 Español | [Ver aquí](docs/db_setup_explanation.md) |
+| **Guía de Usuario** | 🇪🇸 Español | [Ver aquí](docs/Guia_Usuario_ES.md) |
+| **User Guide** | 🇬🇧 English | [See here](docs/User_Guide_EN.md) |
+| **Guía del Desarrollador** | 🇪🇸 Español | [Ver aquí](docs/Guia_Desarrollador_ES.md) |
+| **Developer Guide** | 🇬🇧 English | [See here](docs/Developer_Guide_EN.md) |
+| **Arquitectura** | 🇪🇸 Español | [Ver aquí](docs/Arquitectura_Sistema_ES.md) |
+| **Architecture** | 🇬🇧 English | [See here](docs/System_Architecture_EN.md) |
 
 ---
 
