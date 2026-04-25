@@ -2,7 +2,7 @@ class RecommendationService:
     def __init__(self, driver):
         self.driver = driver
 
-    def get_most_bought_cows(self, limit: int = 10):
+    def get_most_purchased_cows(self, limit: int = 10):
         query = """
         MATCH (c:Cow)<-[r:BUYS]-(:Farmer)
         RETURN c.cow_id AS cow_id, c.name AS name, count(r) AS total_buys
@@ -35,7 +35,7 @@ class RecommendationService:
             result = session.run(query, limit=limit)
             return [record.data() for record in result]
 
-    def get_similar_cows_by_content(self, cow_id: str, limit: int = 5):
+    def get_similar_cows(self, cow_id: str, limit: int = 5):
         query = """
         MATCH (target:Cow {cow_id: $cow_id})-[:HAS_BREED|LIVES_IN]->(shared)<-[:HAS_BREED|LIVES_IN]-(other:Cow)
         WHERE other.cow_id <> $cow_id
@@ -47,7 +47,7 @@ class RecommendationService:
             result = session.run(query, cow_id=cow_id, limit=limit)
             return [record.data() for record in result]
 
-    def get_collaborative_recommendations(self, farmer_id: str, limit: int = 5):
+    def get_personalized_recommendations(self, farmer_id: str, limit: int = 10):
         query = """
         MATCH (me:Farmer {farmer_id: $farmer_id})-[:BUYS|VIEWED]->(shared_cow:Cow)<-[:BUYS|VIEWED]-(other:Farmer)
         MATCH (other)-[:BUYS|VIEWED]->(rec_cow:Cow)
@@ -58,4 +58,9 @@ class RecommendationService:
         """
         with self.driver.session() as session:
             result = session.run(query, farmer_id=farmer_id, limit=limit)
-            return [record.data() for record in result]
+            recommendations = [record.data() for record in result]
+            
+            if not recommendations:
+                return self.get_top_rated_cows(limit)
+                
+            return recommendations
