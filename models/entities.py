@@ -3,13 +3,14 @@ from typing import Optional
 
 @dataclass
 class Farmer:
-    id: str
+    farmer_id: str
     name: str
     location: Optional[str] = None
 
 @dataclass
 class Cow:
-    id: str
+    cow_id: str
+    name: str
     breed: str
     age: int
     price: float

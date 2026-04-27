@@ -15,28 +15,27 @@ def test_recommendations():
 
     print("--- Iniciando Prueba de Recomendacion ---")
 
-    c_svc.create_cow(Cow("C1", "Angus", 2, 1000))
-    c_svc.create_cow(Cow("C2", "Angus", 3, 1200))
-    c_svc.create_cow(Cow("C3", "Holstein", 2, 900))
-    c_svc.create_cow(Cow("C4", "Jersey", 4, 1100))
+    c_svc.create_cow(Cow("C1", "Vaca 1", "Angus", 2, 1000.0))
+    c_svc.create_cow(Cow("C2", "Vaca 2", "Angus", 3, 1200.0))
+    c_svc.create_cow(Cow("C3", "Vaca 3", "Holstein", 2, 900.0))
+    c_svc.create_cow(Cow("C4", "Vaca 4", "Jersey", 4, 1100.0))
 
-    f_svc.create_farmer(Farmer("F1", "Pepe"))
-    f_svc.create_farmer(Farmer("F2", "Maria"))
+    f_svc.create_farmer(Farmer("F1", "Pepe", "Madrid"))
+    f_svc.create_farmer(Farmer("F2", "Maria", "Galicia"))
 
-    f_svc.register_buy("F2", "C1")
-    f_svc.register_buy("F2", "C2")
-
-    f_svc.register_buy("F1", "C1")
+    f_svc.buy_cow("F2", "C1")
+    f_svc.buy_cow("F2", "C2")
+    f_svc.buy_cow("F1", "C1")
 
     print("Recomendaciones para F1 (Colaborativo):")
     recs = r_svc.recommend_by_collaborative("F1")
     for r in recs:
-        print(f"- Sugerencia: Vaca {r.id} ({r.breed})")
+        print(f"- Sugerencia: {r.name} ({r.breed})")
 
     print("\nRecomendaciones para F1 (Por Raza):")
     recs_breed = r_svc.recommend_by_breed("F1")
     for r in recs_breed:
-        print(f"- Sugerencia: Vaca {r.id} ({r.breed})")
+        print(f"- Sugerencia: {r.name} ({r.breed})")
 
     print("\n--- Prueba Finalizada ---")
 

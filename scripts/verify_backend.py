@@ -13,20 +13,20 @@ def run_verification():
 
     print("--- Iniciando Verificacion ---")
 
-    test_farmer = Farmer(id="F1", name="Victor", location="Madrid")
+    test_farmer = Farmer(farmer_id="F1", name="Victor", location="Madrid")
     farmer_svc.create_farmer(test_farmer)
     print(f"Farmer creado: {test_farmer.name}")
 
-    test_cow = Cow(id="C1", breed="Angus", age=3, price=1500.0)
+    test_cow = Cow(cow_id="C1", name="Vaca 1", breed="Angus", age=3, price=1500.0)
     cow_svc.create_cow(test_cow)
     print(f"Cow creada: {test_cow.breed}")
 
     print("Registrando interacciones...")
-    farmer_svc.register_view("F1", "C1")
-    farmer_svc.register_rating("F1", "C1", 5)
-    farmer_svc.register_buy("F1", "C1")
+    farmer_svc.view_cow("F1", "C1")
+    farmer_svc.rate_cow("F1", "C1", 5)
+    farmer_svc.buy_cow("F1", "C1")
 
-    retrieved_farmer = farmer_svc.get_farmer("F1")
+    retrieved_farmer = farmer_svc.get_all_farmers()
     retrieved_cow = cow_svc.get_cow("C1")
 
     if retrieved_farmer and retrieved_cow:
