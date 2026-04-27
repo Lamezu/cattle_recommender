@@ -14,8 +14,20 @@ class MainController:
     def get_farmers(self) -> list:
         return self.farmer_svc.get_all_farmers()
 
-    def get_recommendations(self, farmer_id: str) -> list:
-        return self.recommender_svc.get_recommendations(farmer_id)
+    def get_personalized_recommendations(self, farmer_id: str) -> list:
+        return self.recommender_svc.get_personalized_recommendations(farmer_id)
+
+    def get_similar_cows(self, cow_id: str) -> list:
+        return self.recommender_svc.get_similar_cows(cow_id)
+
+    def get_most_purchased(self, limit: int = 5) -> list:
+        return self.recommender_svc.get_most_purchased_cows(limit)
+
+    def get_most_viewed(self, limit: int = 5) -> list:
+        return self.recommender_svc.get_most_viewed_cows(limit)
+
+    def get_top_rated(self, limit: int = 5) -> list:
+        return self.recommender_svc.get_top_rated_cows(limit)
 
     def buy_cow(self, farmer_id: str, cow_id: str) -> bool:
         return self.farmer_svc.buy_cow(farmer_id, cow_id)

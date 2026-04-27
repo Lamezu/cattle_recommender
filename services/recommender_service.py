@@ -5,15 +5,13 @@ class RecommenderService:
     def __init__(self):
         self.db = Neo4jConnection()
 
-    def get_recommendations(self, farmer_id: str) -> list:
-        recs = self.recommend_by_collaborative(farmer_id)
+    def get_personalized_recommendations(self, farmer_id: str) -> list:
+        recs = self._recommend_by_collaborative(farmer_id)
         if not recs:
-            recs = self.recommend_by_breed(farmer_id)
-        if not recs:
-            recs = self.get_top_rated_cows()
+            recs = self.get_top_rated_cows(5)
         return recs
 
-    def recommend_by_collaborative(self, farmer_id: str) -> list:
+    def _recommend_by_collaborative(self, farmer_id: str) -> list:
         query = """
         MATCH (f1:Farmer {farmer_id: $id})-[:BUYS]->(c:Cow)<-[:BUYS]-(f2:Farmer)
         MATCH (f2)-[:BUYS]->(rec:Cow)
@@ -25,23 +23,41 @@ class RecommenderService:
         result = self.db.execute_query(query, {"id": farmer_id})
         return self._map_result_to_cows(result)
 
-    def recommend_by_breed(self, farmer_id: str) -> list:
+    def get_similar_cows(self, cow_id: str) -> list:
         query = """
-        MATCH (f:Farmer {farmer_id: $id})-[:VIEWED|BUYS]->(c:Cow)
-        WITH f, c.breed as preferred_breed, count(*) as count
-        ORDER BY count DESC LIMIT 1
-        MATCH (rec:Cow {breed: preferred_breed})
-        WHERE NOT (f)-[:BUYS]->(rec)
-        RETURN rec
+        MATCH (target:Cow {cow_id: $id})-[:HAS_BREED|LIVES_IN]->(shared)<-[:HAS_BREED|LIVES_IN]-(rec:Cow)
+        WHERE rec.cow_id <> $id
+        RETURN rec, count(shared) AS similarity_score
+        ORDER BY similarity_score DESC
         LIMIT 5
         """
-        result = self.db.execute_query(query, {"id": farmer_id})
+        result = self.db.execute_query(query, {"id": cow_id})
+        return self._map_result_to_cows(result)
+
+    def get_most_purchased_cows(self, limit: int = 5) -> list:
+        query = """
+        MATCH (rec:Cow)<-[r:BUYS]-(:Farmer)
+        RETURN rec, count(r) AS total_buys
+        ORDER BY total_buys DESC
+        LIMIT $limit
+        """
+        result = self.db.execute_query(query, {"limit": limit})
+        return self._map_result_to_cows(result)
+
+    def get_most_viewed_cows(self, limit: int = 5) -> list:
+        query = """
+        MATCH (rec:Cow)<-[r:VIEWED]-(:Farmer)
+        RETURN rec, count(r) AS total_views
+        ORDER BY total_views DESC
+        LIMIT $limit
+        """
+        result = self.db.execute_query(query, {"limit": limit})
         return self._map_result_to_cows(result)
 
     def get_top_rated_cows(self, limit: int = 5) -> list:
         query = """
-        MATCH (c:Cow)<-[r:RATED]-(:Farmer)
-        RETURN c as rec, avg(r.stars) AS avg_rating, count(r) AS total_ratings
+        MATCH (rec:Cow)<-[r:RATED]-(:Farmer)
+        RETURN rec, avg(r.stars) AS avg_rating, count(r) AS total_ratings
         ORDER BY avg_rating DESC, total_ratings DESC
         LIMIT $limit
         """
@@ -57,8 +73,8 @@ class RecommenderService:
             cows.append(Cow(
                 cow_id=node['cow_id'], 
                 name=node.get('name', 'Vaca'),
-                breed=node['breed'], 
-                age=node['age'], 
-                price=node['price']
+                breed=node.get('breed', 'Unknown'), 
+                age=int(node.get('age', 0)), 
+                price=float(node.get('price', 0))
             ))
         return cows
