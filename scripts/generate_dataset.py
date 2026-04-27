@@ -204,6 +204,7 @@ def generate_cows() -> list[dict]:
 def generate_farmers() -> list[dict]:
     farmers = []
     used_names: set[str] = set()
+    uses = ["dairy", "beef", "dual"]
 
     for i in range(1, TOTAL_FARMERS + 1):
         while True:
@@ -216,43 +217,88 @@ def generate_farmers() -> list[dict]:
             "farmer_id":       f"F{i:04d}",
             "name":            name,
             "security_answer": random.choice(SECURITY_ANSWERS),
+            "pref_use":        random.choice(uses),
+            "pref_env":        random.choice(ENVIRONMENTS)["type"],
         })
 
     return farmers
 
 
 def generate_relationships(farmers: list[dict], cows: list[dict]) -> tuple[list, list, list]:
-    cow_ids = [c["cow_id"] for c in cows]
     buys, viewed, rated = [], [], []
+    
+    breed_map = {b["name"]: b["primary_use"] for b in BREEDS}
+    for c in cows:
+        c["_temp_use"] = breed_map[c["breed"]]
+
+    for cow in cows:
+        f = random.choice(farmers)
+        viewed.append({"farmer_id": f["farmer_id"], "cow_id": cow["cow_id"]})
 
     for farmer in farmers:
-        fid    = farmer["farmer_id"]
-        bought = set(random.sample(cow_ids, random.randint(3, 10)))
+        fid = farmer["farmer_id"]
+        pref_use = farmer["pref_use"]
+        pref_env = farmer["pref_env"]
 
-        for cid in bought:
+        preferred_cows = [c for c in cows if c["_temp_use"] == pref_use or c["environment"] == pref_env]
+        other_cows = [c for c in cows if c not in preferred_cows]
+
+        num_buys = random.randint(3, 10)
+        num_pref_buys = min(int(num_buys * random.uniform(0.7, 1.0)), len(preferred_cows))
+        num_other_buys = num_buys - num_pref_buys
+
+        bought_cows = random.sample(preferred_cows, num_pref_buys)
+        if num_other_buys > 0 and len(other_cows) >= num_other_buys:
+            bought_cows += random.sample(other_cows, num_other_buys)
+
+        bought_ids = {c["cow_id"] for c in bought_cows}
+        for cid in bought_ids:
             buys.append({"farmer_id": fid, "cow_id": cid})
 
-        n_viewed_target = random.randint(max(10, len(bought)), 30)
-        pool            = [c for c in cow_ids if c not in bought]
-        extra           = random.sample(pool, min(max(0, n_viewed_target - len(bought)), len(pool)))
-        for cid in bought | set(extra):
-            viewed.append({"farmer_id": fid, "cow_id": cid})
+        n_viewed_target = random.randint(max(10, len(bought_ids)), 30)
+        view_pool = [c for c in cows if c["cow_id"] not in bought_ids]
+        
+        pref_view_pool = [c for c in view_pool if c["_temp_use"] == pref_use or c["environment"] == pref_env]
+        other_view_pool = [c for c in view_pool if c not in pref_view_pool]
 
-        if random.random() < RATING_PROBABILITY:
-            for cid in random.sample(list(bought), random.randint(1, len(bought))):
-                rated.append({"farmer_id": fid, "cow_id": cid, "stars": random.randint(1, 5)})
+        num_pref_views = min(int(n_viewed_target * 0.8), len(pref_view_pool))
+        num_other_views = min(n_viewed_target - num_pref_views, len(other_view_pool))
 
-    return buys, viewed, rated
+        viewed_cows = random.sample(pref_view_pool, num_pref_views) + random.sample(other_view_pool, num_other_views)
+        
+        for c in bought_cows + viewed_cows:
+            viewed.append({"farmer_id": fid, "cow_id": c["cow_id"]})
+
+        if random.random() < RATING_PROBABILITY and len(bought_ids) > 0:
+            to_rate = random.sample(list(bought_ids), random.randint(1, len(bought_ids)))
+            for cid in to_rate:
+                stars = random.choices([1, 2, 3, 4, 5], weights=[0.05, 0.1, 0.2, 0.4, 0.25], k=1)[0]
+                rated.append({"farmer_id": fid, "cow_id": cid, "stars": stars})
+
+    for c in cows:
+        if "_temp_use" in c:
+            del c["_temp_use"]
+
+    unique_viewed = [dict(t) for t in {tuple(d.items()) for d in viewed}]
+    return buys, unique_viewed, rated
 
 
-def validate_relationships(buys, rated) -> bool:
+def validate_relationships(cows, buys, viewed, rated) -> bool:
     buys_set  = {(r["farmer_id"], r["cow_id"]) for r in buys}
     rated_set = {(r["farmer_id"], r["cow_id"]) for r in rated}
     orphans   = rated_set - buys_set
     if orphans:
         print(f"  VALIDATION FAILED — {len(orphans)} RATED entries not in BUYS: {list(orphans)[:5]}")
         return False
-    print("  Validation passed — all RATED pairs exist in BUYS.")
+        
+    all_interactions = {r["cow_id"] for r in buys} | {r["cow_id"] for r in viewed}
+    cow_ids = {c["cow_id"] for c in cows}
+    unseen_cows = cow_ids - all_interactions
+    if unseen_cows:
+        print(f"  VALIDATION FAILED — {len(unseen_cows)} COWS have NO interactions: {list(unseen_cows)[:5]}")
+        return False
+        
+    print("  Validation passed — all RATED pairs exist in BUYS. All cows have interactions.")
     return True
 
 
@@ -281,7 +327,7 @@ def export_csvs(farmers, cows, buys, viewed, rated) -> None:
     print("=== GENERATE CSVs ===\n")
 
     write_csv("farmers.csv",
-              ["farmer_id", "name", "security_answer"],
+              ["farmer_id", "name", "security_answer", "pref_use", "pref_env"],
               farmers)
 
     write_csv("cows.csv",
@@ -316,5 +362,5 @@ if __name__ == "__main__":
     cows    = generate_cows()
     buys, viewed, rated = generate_relationships(farmers, cows)
 
-    if validate_relationships(buys, rated):
+    if validate_relationships(cows, buys, viewed, rated):
         export_csvs(farmers, cows, buys, viewed, rated)
