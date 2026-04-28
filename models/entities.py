@@ -5,6 +5,7 @@ from typing import Optional
 class Farmer:
     farmer_id: str
     name: str
+    security_answer: Optional[str] = None
     location: Optional[str] = None
 
 @dataclass
