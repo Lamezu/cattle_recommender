@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CattlePRO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--accent-neon);
+        }
+        .login-card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        .login-card p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 1.2rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            border-color: var(--accent-neon);
+            background: rgba(0,0,0,0.4);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-neon);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 1rem;
+        }
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+        }
+        .toggle-link {
+            color: var(--accent-neon);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">
+            <i class="fas fa-cow"></i>
+            <span>CattlePRO</span>
+        </div>
+        
+        <div id="login-header">
+            <h2>Bienvenido</h2>
+            <p>Introduce tus datos para entrar</p>
+        </div>
+
+        <div id="register-header" style="display: none;">
+            <h2>Únete al equipo</h2>
+            <p>Crea tu cuenta de granjero hoy</p>
+        </div>
+        
+        {% if error %}
+        <div class="error-msg" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 0.8rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.85rem;">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <div id="login-form">
+            <form action="/login" method="POST">
+                <div class="input-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" name="name" placeholder="Tu nombre completo" required>
+                </div>
+                <div class="input-group">
+                    <label>Respuesta de Seguridad</label>
+                    <input type="text" name="security_answer" placeholder="Tu palabra secreta" required>
+                </div>
+                <button type="submit" class="login-btn">Entrar al Portal</button>
+            </form>
+            <div style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                ¿No tienes cuenta? <span class="toggle-link" onclick="toggleForms()">Regístrate aquí</span>
+            </div>
+        </div>
+
+        <div id="register-form" style="display: none;">
+            <form action="/register" method="POST">
+                <div class="input-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" name="name" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="input-group">
+                    <label>Respuesta de Seguridad (Clave de acceso)</label>
+                    <input type="text" name="security_answer" placeholder="Ej: perro" required>
+                </div>
+                <button type="submit" class="login-btn" style="background: #3b82f6;">Crear Cuenta</button>
+            </form>
+            <div style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                <span class="toggle-link" style="color: var(--text-muted)" onclick="toggleForms()">Volver al Inicio</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const loginHeader = document.getElementById('login-header');
+            const registerHeader = document.getElementById('register-header');
+
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                loginHeader.style.display = 'block';
+                registerForm.style.display = 'none';
+                registerHeader.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                loginHeader.style.display = 'none';
+                registerForm.style.display = 'block';
+                registerHeader.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

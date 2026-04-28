@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cattle Recommender | Premium Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-cow"></i>
+                <span>CattlePRO</span>
+            </div>
+            <nav class="sidebar-nav">
+                <h3><i class="fas fa-th-large"></i> Menú Principal</h3>
+                <a href="javascript:void(0)" onclick="switchTab('recommended', this)" class="nav-item active"><i class="fas fa-home"></i> Inicio</a>
+                <a href="javascript:void(0)" onclick="switchTab('purchases', this)" class="nav-item"><i class="fas fa-cow"></i> Mis Compras</a>
+                <a href="javascript:void(0)" onclick="openLogoutModal()" class="nav-item logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>AED Project 2026</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="main-search" placeholder="Buscar vacas en el catálogo..." oninput="applyFilters()">
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <span id="current-farmer-name">Bienvenido</span>
+                        <small>Granjero Premium</small>
+                    </div>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <section class="hero-section">
+                <h1>Descubre las mejores opciones para tu ganadería</h1>
+                <p>Algoritmos de recomendación basados en grafos y preferencias reales.</p>
+            </section>
+
+            <section class="tabs-section">
+
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="switchTab('recommended', this)">
+                        <i class="fas fa-magic"></i> Recomendadas
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('top-rated', this)">
+                        <i class="fas fa-star"></i> Top Rated
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('most-purchased', this)">
+                        <i class="fas fa-shopping-cart"></i> Más Vendidas
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('catalog', this)">
+                        <i class="fas fa-list"></i> Catálogo Completo
+                    </button>
+                </div>
+
+                <div id="advanced-filters-bar" class="filters-toolbar" style="display: none;">
+                    <div class="filter-group">
+                        <label><i class="fas fa-filter"></i> Raza:</label>
+                        <select id="breed-filter" onchange="applyFilters()">
+                            <option value="Todas">Todas las razas</option>
+                            <option value="Holstein">Holstein</option>
+                            <option value="Angus">Angus</option>
+                            <option value="Hereford">Hereford</option>
+                            <option value="Simmental">Simmental</option>
+                            <option value="Limousin">Limousin</option>
+                            <option value="Brahman">Brahman</option>
+                            <option value="Jersey">Jersey</option>
+                            <option value="Charolais">Charolais</option>
+                            <option value="Wagyu">Wagyu</option>
+                            <option value="Gyr">Gyr</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-sort-amount-down"></i> Ordenar:</label>
+                        <select id="sort-filter" onchange="applyFilters()">
+                            <option value="id_asc">Por defecto</option>
+                            <option value="price_asc">Precio: Menor a Mayor</option>
+                            <option value="price_desc">Precio: Mayor a Menor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-container" id="cows-grid">
+                    <!-- Las tarjetas de vacas se cargarán aquí vía JS -->
+                </div>
+
+                <!-- Paginación -->
+                <div id="pagination-container" class="pagination-footer"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="notifications-container"></div>
+
+    <!-- Modal para Similares -->
+    <div id="similar-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Vacas similares a <span id="modal-cow-name"></span></h2>
+            <div class="grid-container" id="similar-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Cerrar Sesión -->
+    <div id="logout-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #ef4444; margin-bottom: 1.5rem; display: block;"></i>
+            <h2 style="margin-bottom: 1rem;">¿Cerrar sesión?</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">¿Estás seguro de que quieres salir del portal CattlePRO?</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="buy-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="closeLogoutModal()">Cancelar</button>
+                <a href="/logout" class="buy-btn" style="background: #ef4444; color: white; text-decoration: none; display: flex; align-items: center;">Cerrar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
