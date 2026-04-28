@@ -193,6 +193,7 @@ def generate_cows() -> list[dict]:
                 "price":       round(random.uniform(breed["price_min"], breed["price_max"]), 2),
                 "description": random.choice(breed["description_templates"]),
                 "gender":      "female" if random.random() < GENDER_WEIGHTS[breed["primary_use"]] else "male",
+                "age":         random.randint(1, 10),
                 "breed":       breed["name"],
                 "environment": random.choice(ENVIRONMENTS)["type"],
             })
@@ -318,7 +319,7 @@ def write_csv(filename: str, fieldnames: list[str], rows: list[dict]) -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
-    print(f"  {filename:<22}  {len(rows):>5} rows  →  {path}")
+    print(f"  {filename:<22}  {len(rows):>5} rows  ->  {path}")
 
 
 def export_csvs(farmers, cows, buys, viewed, rated) -> None:
@@ -331,7 +332,7 @@ def export_csvs(farmers, cows, buys, viewed, rated) -> None:
               farmers)
 
     write_csv("cows.csv",
-              ["cow_id", "name", "price", "description", "gender", "rating", "breed", "environment"],
+              ["cow_id", "name", "price", "description", "gender", "age", "rating", "breed", "environment"],
               cows)
 
     write_csv("breeds.csv",

@@ -46,7 +46,9 @@ def import_cows(conn: Neo4jConnection) -> None:
             c.price       = row.price,
             c.description = row.description,
             c.gender      = row.gender,
-            c.rating      = row.rating
+            c.rating      = row.rating,
+            c.age         = toInteger(row.age),
+            c.breed       = row.breed
         """,
         {"rows": rows},
     )
