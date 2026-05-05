@@ -24,7 +24,6 @@ class CowService:
         self.db.execute_query(query, params)
 
     def get_all_cows(self, skip: int = 0, limit: int = 15, breed: str = None, search: str = None, sort: str = None) -> list:
-        # Construcción dinámica de la query
         query_parts = ["MATCH (c:Cow)"]
         where_parts = []
         params = {"skip": skip, "limit": limit}
@@ -47,7 +46,7 @@ class CowService:
         elif sort == 'price_desc':
             query_parts.append("ORDER BY c.price DESC")
         else:
-            query_parts.append("ORDER BY c.cow_id ASC") # Orden por defecto
+            query_parts.append("ORDER BY c.cow_id ASC")
 
         query_parts.append("SKIP $skip LIMIT $limit")
         

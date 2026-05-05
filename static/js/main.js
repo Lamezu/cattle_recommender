@@ -8,7 +8,6 @@ async function checkSession() {
         const user = await response.json();
         const firstName = user.name.split(' ')[0];
         document.getElementById('current-farmer-name').innerText = `Hola, ${firstName}`;
-        // Ponemos la inicial dinámica en el avatar
         document.querySelector('.avatar').innerText = firstName.charAt(0).toUpperCase();
         
         document.body.setAttribute('data-user-id', user.id);
@@ -40,7 +39,6 @@ async function switchTab(tab, element = null, page = 1) {
     
     const targetElement = element || document.querySelector(`.tab-btn[onclick*="'${tab}'"]`) || document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
 
-    // SI EL USUARIO HA HECHO CLIC (element != null), RESETEAMOS FILTROS
     if (element) {
         document.getElementById('breed-filter').value = 'Todas';
         document.getElementById('main-search').value = '';
@@ -86,7 +84,6 @@ async function switchTab(tab, element = null, page = 1) {
             return;
         }
 
-        // ÉXITO: Marcamos activo y actualizamos textos
         document.querySelectorAll('.tab-btn, .nav-item').forEach(el => el.classList.remove('active'));
         if (targetElement) targetElement.classList.add('active');
 
@@ -101,12 +98,10 @@ async function switchTab(tab, element = null, page = 1) {
             tabsSection.style.display = 'flex';
         }
         
-        // Barra de filtros siempre disponible para búsqueda inteligente global
         document.getElementById('advanced-filters-bar').style.display = 'flex';
 
         renderCows(cows, grid, tab);
 
-        // Renderizar paginación solo en catálogo
         const paginationContainer = document.getElementById('pagination-container');
         if (tab === 'catalog') {
             renderPagination(total, page);
@@ -131,7 +126,6 @@ function renderCows(cows, container, context = 'catalog') {
         const card = document.createElement('div');
         card.className = 'cow-card';
         
-        // Lógica de resaltado
         const searchTerm = document.getElementById('main-search').value;
         let displayName = cow.name;
         if (searchTerm && searchTerm.length > 0) {
@@ -139,7 +133,6 @@ function renderCows(cows, container, context = 'catalog') {
             displayName = displayName.replace(regex, '<span class="highlight">$1</span>');
         }
 
-        // Botón condicional según el contexto (CRUD)
         const actionButton = context === 'purchases' 
             ? `<button class="buy-btn" style="background: #ef4444; color: white;" onclick="returnCow('${cow.cow_id}')">Devolver</button>`
             : `<button class="buy-btn" onclick="buyCow('${cow.cow_id}')">Comprar</button>`;
@@ -221,7 +214,7 @@ async function returnCow(cowId) {
     const result = await response.json();
     if (result.success) {
         showNotification("Devolución", "La vaca ha sido devuelta y eliminada de tu historial.", "info");
-        switchTab('purchases'); // Recargar la lista de compras
+        switchTab('purchases');
     }
 }
 
@@ -242,10 +235,8 @@ function showNotification(title, message, type = 'info') {
     
     container.appendChild(notification);
     
-    // Animación de entrada
     setTimeout(() => notification.classList.add('show'), 10);
     
-    // Eliminar automáticamente tras 5 segundos
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 500);
@@ -271,7 +262,6 @@ let searchTimeout;
 function applyFilters() {
     clearTimeout(searchTimeout);
     
-    // Recarga la sección actual aplicando los filtros globales de forma inteligente
     searchTimeout = setTimeout(() => {
         switchTab(currentTab, null, 1);
     }, 300);

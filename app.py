@@ -5,7 +5,7 @@ import os
 from datetime import timedelta
 
 app = Flask(__name__)
-app.secret_key = 'cattle_pro_premium_secret_key' # Clave fija para que no te eche al reiniciar
+app.secret_key = 'cattle_pro_premium_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
 controller = MainController()
@@ -81,7 +81,7 @@ def get_purchases(farmer_id):
 @app.route('/api/catalog')
 def get_catalog():
     page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 15)) # Forzamos a 15 como acordamos
+    limit = int(request.args.get('limit', 15))
     breed = request.args.get('breed')
     search = request.args.get('search')
     sort = request.args.get('sort')
